@@ -370,7 +370,7 @@ DEV=/dev/${1}
 __wait_for_boot
 
 case ${2} in
-  (attach)
+  ([Aa][Tt][Tt][Aa][Cc][Hh])
     __random_wait
     __log "${DEV}: attach"
     if [ "${BLACKLIST}" != "" ]
@@ -550,7 +550,7 @@ case ${2} in
     fi
     ;;
 
-  (detach)
+  ([Dd][Ee][Tt][Aa][Cc][Hh])
     __log "${DEV}: detach"
     if [ -f ${STATE} ]
     then
