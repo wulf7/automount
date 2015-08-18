@@ -175,11 +175,11 @@ then
   sysctl vfs.usermount=1 1> /dev/null 2> /dev/null # allow USER to mount
 fi
 
-__create_mount_point() { # 1=DEV
-  mkdir -p ${MNT}
+__create_mount_point() { # 1=MNT
+  mkdir -p ${1}
   if [ "${USER}" != 0 ]
   then
-    chown ${USER}:$( id -g -n ${USER} ) ${MNT}
+    chown ${USER}:$( id -g -n ${USER} ) ${1}
   fi
 }
 
@@ -402,7 +402,7 @@ case ${2} in
     __fstype ${DEV}
     case ${TYPE} in
       (UFS)
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         fsck_ufs -C -y ${DEV} \
           | while read LINE
@@ -420,7 +420,7 @@ case ${2} in
         __log "${DEV}: mount (ufs)"
         ;;
       (FAT) # must be before NTFS section because: newfs_msdos -O NTFS -L NTFS
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         fsck_msdosfs -C -y ${DEV} \
           | while read LINE
@@ -439,7 +439,7 @@ case ${2} in
         __log "${DEV}: mount (fat)"
         ;;
       (NTFS) # must be after FAT section: newfs_msdos -O NTFS -L NTFS
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         if which ntfs-3g 1> /dev/null 2> /dev/null # sysutils/fusefs-ntfs
         then
@@ -473,7 +473,7 @@ case ${2} in
         __log "${DEV}: mount (ntfs)"
         ;;
       (EXT2)
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         e2fsck -y ${DEV} \
           | while read LINE
@@ -491,7 +491,7 @@ case ${2} in
         __log "${DEV}: mount (ext2)"
         ;;
       (EXT3)
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         e2fsck -y ${DEV} \
           | while read LINE
@@ -509,7 +509,7 @@ case ${2} in
         __log "${DEV}: mount (ext3)"
         ;;
       (EXT4)
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         e2fsck -y ${DEV} \
           | while read LINE
@@ -527,7 +527,7 @@ case ${2} in
         __log "${DEV}: mount (ext4)"
         ;;
       (EXFAT)
-        __create_mount_point ${DEV}
+        __create_mount_point ${MNT}
         __wait_for_device ${DEV}
         if mount.exfat ${OPTS} ${DEV} ${MNT} # sysutils/fusefs-exfat
         then
