@@ -415,9 +415,7 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (ufs) 'mount -t ufs ${OPTS} ${DEV} ${MNT}'"
-          exit 1
         fi
-        __log "${DEV}: mount (ufs)"
         ;;
       (FAT) # must be before NTFS section because: newfs_msdos -O NTFS -L NTFS
         __create_mount_point ${MNT}
@@ -434,9 +432,7 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (fat) 'mount_msdosfs ${OPTS} -o large -o longnames -D ${CODEPAGE} -L ${ENCODING} -m 644 -M 755 ${DEV} ${MNT}'"
-          exit 1
         fi
-        __log "${DEV}: mount (fat)"
         ;;
       (NTFS) # must be after FAT section: newfs_msdos -O NTFS -L NTFS
         __create_mount_point ${MNT}
@@ -454,7 +450,6 @@ case ${2} in
               ADD=1
             else
               __log "${DEV}: mount failed (ntfs) 'ntfs-3g ${OPTS} ${DEV} ${MNT}'"
-              exit 1
             fi
           fi
         else
@@ -467,10 +462,8 @@ case ${2} in
             ADD=1
           else
             __log "${DEV}: mount failed (ntfs) 'mount_ntfs ${OPTS} ${DEV} ${MNT}'"
-            exit 1
           fi
         fi
-        __log "${DEV}: mount (ntfs)"
         ;;
       (EXT2)
         __create_mount_point ${MNT}
@@ -486,9 +479,7 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (ext2) 'mount -t ext2fs ${OPTS} ${DEV} ${MNT}'"
-          exit 1
         fi
-        __log "${DEV}: mount (ext2)"
         ;;
       (EXT3)
         __create_mount_point ${MNT}
@@ -504,9 +495,7 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (ext3) 'mount -t ext2fs ${OPTS} ${DEV} ${MNT}'"
-          exit 1
         fi
-        __log "${DEV}: mount (ext3)"
         ;;
       (EXT4)
         __create_mount_point ${MNT}
@@ -522,9 +511,7 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (ext4) 'ext4fuse ${DEV} ${MNT}'"
-          exit 1
         fi
-        __log "${DEV}: mount (ext4)"
         ;;
       (EXFAT)
         __create_mount_point ${MNT}
@@ -534,9 +521,7 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (exfat) 'mount.exfat ${OPTS} ${DEV} ${MNT}'"
-          exit 1
         fi
-        __log "${DEV}: mount (exfat)"
         ;;
       (*)
         __log "${DEV}: filesystem not supported or no filesystem"
@@ -546,8 +531,11 @@ case ${2} in
     if [ ${ADD} -eq 1 ]
     then
       ADD=0
+      __log "${DEV}: mount ("$( echo "${TYPE}" | tr "[:upper:]" "[:lower:]" )")"
       PROVIDER=$( mount | grep -m 1 " ${MNT} " | awk '{printf $1}' )
       __state_add ${DEV} ${PROVIDER} ${MNT}
+    else
+      exit 1
     fi
     ;;
 
