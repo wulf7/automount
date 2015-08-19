@@ -535,6 +535,7 @@ case ${2} in
       PROVIDER=$( mount | grep -m 1 " ${MNT} " | awk '{printf $1}' )
       __state_add ${DEV} ${PROVIDER} ${MNT}
     else
+      __remove_dir "${MNT}"
       exit 1
     fi
     ;;
