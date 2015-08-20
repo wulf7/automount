@@ -184,6 +184,10 @@ __create_mount_point() { # 1=DEV
 }
 
 __notify_user() { # 1=MESSAGE 2=FM_DIRECTORY
+  if [ -z $( users ) ]
+  then
+    return
+  fi
   if [ ! -z "${1}" -a "${NOTIFY}" = YES ]
   then
     env DISPLAY=:0 notify-send automount "${1}"
