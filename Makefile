@@ -32,7 +32,7 @@ MTP_LDFLAGS=		-L${LOCALBASE}/lib -Wl,-rpath=${LOCALBASE}/lib -lmtp
 .include <bsd.port.pre.mk>
 
 .if ${PORT_OPTIONS:MMTP}
-PLIST_FILES+=	bin/simple-mtpfs-probe
+PLIST_FILES+=	bin/simple-mtpfs-probe etc/devd/automount_devd_mtp.conf
 .else
 NO_BUILD=	yes
 NO_ARCH=	yes
@@ -50,6 +50,7 @@ do-install:
 	${INSTALL_DATA}   ${WRKSRC}/automount.conf.sample ${STAGEDIR}${PREFIX}/etc/automount.conf.sample
 .if ${PORT_OPTIONS:MMTP}
 	${INSTALL_PROGRAM} ${WRKSRC}/simple-mtpfs-probe   ${STAGEDIR}${PREFIX}/bin
+	${INSTALL_DATA} ${WRKSRC}/automount_devd_mtp.conf ${STAGEDIR}${PREFIX}/etc/devd/automount_devd_mtp.conf
 .endif
 
 .include <bsd.port.post.mk>
