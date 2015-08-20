@@ -188,9 +188,9 @@ __notify_user() { # 1=MESSAGE 2=FM_DIRECTORY
   then
     return
   fi
-  if [ ! -z "${1}" -a "${NOTIFY}" = YES ]
+  if [ ! -z "${1}" -a "${USER}" != 0 -a "${NOTIFY}" = YES ]
   then
-    env DISPLAY=:0 notify-send automount "${1}"
+    su - ${USER} -c 'env DISPLAY=:0 notify-send automount "'"${1}"'"'
   fi
   if [ ! -z "${1}" -a "${WALL}" = YES ]
   then
