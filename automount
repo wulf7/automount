@@ -31,10 +31,14 @@ AUTOMOUNT is a devd(8) based automounter for FreeBSD.
 It supports following file systems:
 UFS/FAT/exFAT/NTFS/EXT2/EXT3/EXT4
 
-It needs these ports to mount NTFS/exFAT/EXT4 respectively:
+And multimedia data transfer protocols:
+MTP
+
+It needs these ports to mount NTFS/exFAT/EXT4/MTP respectively:
  o sysutils/fusefs-ntfs
  o sysutils/fusefs-exfat
  o sysutils/fusefs-ext4fuse
+ o sysutils/fusefs-simple-mtpfs
 
 By default it mounts/unmounts all removable media but
 it is possible to set some additional options at the
@@ -309,6 +313,18 @@ __random_wait() {
 }
 
 __fstype() { # 1=DEV
+  if echo "${DEV}" | grep -q 'ugen'
+  then
+    TYPE=$( simple-mtpfs-probe ${DEV} 2> /dev/null | head -1 )
+    if [ ! -z "${TYPE}" ]
+    then
+      MTP_DEV=$( echo "${TYPE}" | cut -f1 -d: )
+      TYPE=MTP
+      return
+    fi
+    TYPE=-1
+    return
+  fi
   TYPE=$( dd < ${DEV} count=1 2> /dev/null | strings | head -1 )
   if echo "${TYPE}" | grep -q 'EXFAT'
   then
@@ -521,6 +537,16 @@ case ${2} in
           ADD=1
         else
           __log "${DEV}: mount failed (exfat) 'mount.exfat ${OPTS} ${DEV} ${MNT}'"
+        fi
+        ;;
+      (MTP)
+        __create_mount_point ${MNT}
+        # sysutils/fusefs-simple-mtpfs
+        if simple-mtpfs -o allow_other --device ${MTP_DEV} ${MNT}
+        then
+          ADD=1
+        else
+          __log "${DEV}: mount failed (mtp) 'simple-mtpfs -o allow_other --device ${MTP_DEV} ${MNT}'"
         fi
         ;;
       (*)
