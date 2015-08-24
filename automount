@@ -315,7 +315,7 @@ __random_wait() {
 __fstype() { # 1=DEV
   if echo "${DEV}" | grep -q 'ugen'
   then
-    TYPE=$( simple-mtpfs-probe ${DEV} 2> /dev/null | head -1 )
+    TYPE=$( simple-mtpfs -l ${DEV} 2> /dev/null | head -1 )
     if [ ! -z "${TYPE}" ]
     then
       MTP_DEV=$( echo "${TYPE}" | cut -f1 -d: )
@@ -542,6 +542,8 @@ case ${2} in
       (MTP)
         __create_mount_point ${MNT}
         # sysutils/fusefs-simple-mtpfs
+        # mount by libmtp internal device number as at current state simple-mtpfs
+        # does not respect libmtp device quirks when mounts by device path
         if simple-mtpfs -o allow_other --device ${MTP_DEV} ${MNT}
         then
           ADD=1

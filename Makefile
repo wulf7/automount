@@ -15,6 +15,8 @@ LICENSE=	BSD2CLAUSE
 PLIST_FILES=	sbin/automount etc/devd/automount_devd.conf etc/automount.conf.sample
 
 SUB_FILES=	pkg-install
+NO_BUILD=	yes
+NO_ARCH=	yes
 
 OPTIONS_DEFINE=		NTFS3G EXT4 EXFAT MTP
 OPTIONS_DEFAULT=	NTFS3G EXT4
@@ -24,24 +26,12 @@ EXT4_DESC=		Support EXT4 filesystem
 EXT4_RUN_DEPENDS=	fusefs-ext4fuse>=0:${PORTSDIR}/sysutils/fusefs-ext4fuse
 EXFAT_DESC=		Support Microsoft exFAT filesystem
 EXFAT_RUN_DEPENDS=	fusefs-exfat>=0:${PORTSDIR}/sysutils/fusefs-exfat
-MTP_LIB_DEPENDS=	libmtp.so:${PORTSDIR}/multimedia/libmtp
-MTP_RUN_DEPENDS=	simple-mtpfs:${PORTSDIR}/sysutils/fusefs-simple-mtpfs
-MTP_CFLAGS=		-I${LOCALBASE}/include
-MTP_LDFLAGS=		-L${LOCALBASE}/lib -Wl,-rpath=${LOCALBASE}/lib -lmtp
+MTP_RUN_DEPENDS=	fusefs-simple-mtpfs>=0.2.24:${PORTSDIR}/sysutils/fusefs-simple-mtpfs
 
 .include <bsd.port.pre.mk>
 
 .if ${PORT_OPTIONS:MMTP}
-PLIST_FILES+=	bin/simple-mtpfs-probe etc/devd/automount_devd_mtp.conf
-.else
-NO_BUILD=	yes
-NO_ARCH=	yes
-.endif
-
-do-build:
-.if ${PORT_OPTIONS:MMTP}
-	cd ${WRKSRC} && ${CC} ${CFLAGS} ${LDFLAGS} -o simple-mtpfs-probe \
-		simple-mtpfs-probe.c
+PLIST_FILES+=	etc/devd/automount_devd_mtp.conf
 .endif
 
 do-install:
@@ -49,7 +39,6 @@ do-install:
 	${INSTALL_DATA}   ${WRKSRC}/automount_devd.conf   ${STAGEDIR}${PREFIX}/etc/devd/automount_devd.conf
 	${INSTALL_DATA}   ${WRKSRC}/automount.conf.sample ${STAGEDIR}${PREFIX}/etc/automount.conf.sample
 .if ${PORT_OPTIONS:MMTP}
-	${INSTALL_PROGRAM} ${WRKSRC}/simple-mtpfs-probe   ${STAGEDIR}${PREFIX}/bin
 	${INSTALL_DATA} ${WRKSRC}/automount_devd_mtp.conf ${STAGEDIR}${PREFIX}/etc/devd/automount_devd_mtp.conf
 .endif
 
